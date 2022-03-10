@@ -11,6 +11,8 @@ permissions:
   id-token: write
   pages: write
 
+# This allows a subsequently queued workflow run to take priority over
+# previously queued runs but NOT interrupt currently executing runs
 concurrency:
   group: '${{ github.workflow }}'
   cancel-in-progress: false
