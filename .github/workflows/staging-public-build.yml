@@ -33,6 +33,10 @@ jobs:
       #
       # Should consider creating a "packing" Action to essentially encapsulate the following 2-3 steps
       #
+      # IMPORTANT: That said, relying on the `pull_request` action to provide the event information is
+      # a security risk that we would not tolerate in the future as it would allow malicious PR authors
+      # to clobber deployments from other PRs
+      #
       - name: Archive build output
         run: |
           tar --dereference --directory public/ -cvf artifact.tar .
