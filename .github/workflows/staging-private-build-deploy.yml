@@ -2,7 +2,7 @@ name: Staging - Private - Build and Deploy
 
 on:
   pull_request:
-   
+
 permissions:
   contents: read
   id-token: write
