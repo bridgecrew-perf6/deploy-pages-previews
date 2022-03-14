@@ -1,0 +1,66 @@
+name: Staging - Public - Risky Build and Deploy
+
+on:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+# for each PR branch
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.head_ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a
+        with:
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build static site
+        run: npm run build
+
+      - name: Archive build output
+        run: |
+          tar --dereference --directory public/ -cvf artifact.tar .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+        with:
+          name: github-pages
+          path: artifact.tar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages-staging
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: paper-spa/deploy-pages@main
+        with:
+          # new feature
+          preview: 'true'
+
+      - name: Announce deployment
+        run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"
