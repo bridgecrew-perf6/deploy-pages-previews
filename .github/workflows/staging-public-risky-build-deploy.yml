@@ -1,4 +1,4 @@
-name: Staging - Public - Risky Build and Deploy
+name: Staging - Public - Build and Deploy
 
 on:
   pull_request_target:
@@ -13,6 +13,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  # WARNING!
+  #
+  # Your "build" job needs to be very written carefully for security!
+  #
+  # The use of `pull_request_target` for forkable repos is still a risky approach
+  # depending on your "build" job's setup, use of fork-owned files, exposure of
+  # Actions secrets, etc.
+  #
+  # See https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+
   build:
     runs-on: ubuntu-latest
     permissions:
